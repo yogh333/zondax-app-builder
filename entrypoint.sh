@@ -12,7 +12,10 @@ source /home/test/.cargo/env
 echo "HTTP proxy started..."
 /home/test/speculos/tools/ledger-live-http-proxy.py -v &
 
-echo -e $(printenv | grep BOLOS)
+echo "Zondpeculos started..."
+/home/test/zondpeculos-service.py &
+
+echo -e "$(printenv | grep BOLOS)"
 
 echo
 bash -c "trap 'exit' SIGTERM SIGINT; $@"
