@@ -34,25 +34,25 @@ RUN /tmp/install_compiler.sh
 # Install Python
 RUN apt-get update && apt-get -y install python3 python3-pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN pip3 install -U setuptools ledgerblue pillow
+RUN pip3 install -U setuptools ledgerblue pillow Flask
 
 # Speculos dependencies
 RUN apt-get update && apt-get -y install qemu-user-static python3-pyqt5 python3-construct python3-mnemonic python3-pyelftools gcc-arm-linux-gnueabihf libc6-dev-armhf-cross gdb-multiarch libvncserver-dev
 
-# Create test user
-RUN adduser --disabled-password --gecos "" -u 1000 test
-RUN echo "test ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-WORKDIR /home/test
+# Create zondax user
+RUN adduser --disabled-password --gecos "" -u 1000 zondax
+RUN echo "zondax ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+WORKDIR /home/zondax
 
 # Install Rust
-RUN su - test -c "curl https://sh.rustup.rs -sSf | bash -s -- -y"
-RUN su - test -c ". /home/test/.cargo/env && rustup toolchain install nightly"
-RUN su - test -c ". /home/test/.cargo/env && rustup target add thumbv6m-none-eabi"
-RUN su - test -c ". /home/test/.cargo/env && rustup target add --toolchain nightly thumbv6m-none-eabi"
+RUN su - zondax -c "curl https://sh.rustup.rs -sSf | bash -s -- -y"
+RUN su - zondax -c ". /home/zondax/.cargo/env && rustup toolchain install nightly"
+RUN su - zondax -c ". /home/zondax/.cargo/env && rustup target add thumbv6m-none-eabi"
+RUN su - zondax -c ". /home/zondax/.cargo/env && rustup target add --toolchain nightly thumbv6m-none-eabi"
 
 ####################################
 ####################################
-USER test
+USER zondax
 
 # Install ghr
 RUN go get -u -v github.com/tcnksm/ghr
@@ -60,9 +60,9 @@ RUN go get -u -v github.com/tcnksm/ghr
 # Speculos - use patched fork
 ARG REFRESH_SPECULOS=change_to_rebuild_from_here
 RUN git clone https://github.com/ZondaX/speculos.git
-RUN mkdir -p /home/test/speculos/build
-RUN cd /home/test/speculos && cmake -Bbuild -H. -DWITH_VNC=1
-RUN make -C /home/test/speculos/build/
+RUN mkdir -p /home/zondax/speculos/build
+RUN cd /home/zondax/speculos && cmake -Bbuild -H. -DWITH_VNC=1
+RUN make -C /home/zondax/speculos/build/
 
 # Patch proxy to connect to all interfaces
 RUN sed -i "s/HOST = '127.0.0.1'/HOST = '0.0.0.0'/g" speculos/tools/ledger-live-http-proxy.py
@@ -83,12 +83,17 @@ EXPOSE 9998/udp
 # HTTP ZONDPECULOS CONTROL
 EXPOSE 9997/tcp
 EXPOSE 9997/udp
+# RFB
+EXPOSE 8001/tcp
+EXPOSE 8001/udp
 
 # ENV
-RUN mkdir -p /home/test/.ccache
-RUN echo "cache_dir = /project/.ccache" > /home/test/.ccache/ccache.conf
+RUN mkdir -p /home/zondax/.ccache
+RUN echo "cache_dir = /project/.ccache" > /home/zondax/.ccache/ccache.conf
 
-ADD entrypoint.sh /home/test/entrypoint.sh
+ADD zondpeculos-service.py /home/zondax/zondpeculos-service.py
+RUN sudo chmod a+x /home/zondax/zondpeculos-service.py
+ADD entrypoint.sh /home/zondax/entrypoint.sh
 
 # START SCRIPT
-ENTRYPOINT ["/home/test/entrypoint.sh"]
+ENTRYPOINT ["/home/zondax/entrypoint.sh"]
