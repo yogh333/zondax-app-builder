@@ -1,5 +1,6 @@
 #*******************************************************************************
-#    (c) 2019-2021 Zondax GmbH
+#   (c) 2022 Ledger 
+#   (c) 2019-2021 Zondax GmbH
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -37,7 +38,8 @@ ADD install_rust.sh /tmp/install_rust.sh
 ADD install_user.sh /tmp/install_user.sh
 
 # Create zondax user
-RUN adduser --disabled-password --gecos "" -u 501 zondax_mac
+ARG UID
+RUN adduser --disabled-password --gecos "" -u $UID zondax_mac
 RUN echo "zondax_mac ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ####################################

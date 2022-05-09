@@ -1,4 +1,4 @@
-DOCKER_IMAGE_PREFIX=zondax/builder-
+DOCKER_IMAGE_PREFIX=ledger/builder-
 DOCKER_IMAGE=${DOCKER_IMAGE_PREFIX}bolos
 
 INTERACTIVE:=$(shell [ -t 0 ] && echo 1)
@@ -25,7 +25,7 @@ build_x86:
 	cd src && docker buildx build --platform linux/amd64 --rm -f ./x86.Dockerfile -t $(DOCKER_IMAGE):$(HASH_TAG) -t $(DOCKER_IMAGE):latest .
 
 build_aarch64:
-	cd src && docker buildx build --platform linux/arm64 --rm -f ./aarch64.Dockerfile -t $(DOCKER_IMAGE):$(HASH_TAG) -t $(DOCKER_IMAGE):latest .
+	cd src && docker buildx build --build-arg UID=$(shell id -u) --platform linux/arm64 --rm -f ./aarch64.Dockerfile -t $(DOCKER_IMAGE):$(HASH_TAG) -t $(DOCKER_IMAGE):latest .
 
 publish_login:
 	docker login
