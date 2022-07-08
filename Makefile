@@ -1,5 +1,5 @@
-DOCKER_IMAGE_PREFIX=zondax/builder-
-DOCKER_IMAGE=${DOCKER_IMAGE_PREFIX}bolos
+DOCKER_IMAGE_PREFIX=jcaporossi/starknet-
+DOCKER_IMAGE=${DOCKER_IMAGE_PREFIX}builder
 
 INTERACTIVE:=$(shell [ -t 0 ] && echo 1)
 
