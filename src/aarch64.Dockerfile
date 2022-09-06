@@ -15,10 +15,11 @@
 #*******************************************************************************
 #Download base ubuntu image
 FROM ubuntu:20.04
-ENV DEBIAN_FRONTEND noninteractive
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get -y install build-essential ccache golang-go git wget sudo zip \
+    apt-get -y install build-essential ccache git wget sudo zip \
     curl cmake software-properties-common apt-utils binutils-arm-none-eabi libncurses5
 
 # Install Python
@@ -29,8 +30,8 @@ RUN pip3 install -U setuptools ledgerblue pillow
 
 # ARM compilers
 ADD aarch64/install_compiler.sh /tmp/install_compiler.sh
-RUN sha256sum /tmp/install_compiler.sh
-RUN echo "b387ef98b84414563113bab9ae24954b5102ca50ed0c1161b51fc0f3300cf7d0 /tmp/install_compiler.sh" | sha256sum --check
+#RUN sha256sum /tmp/install_compiler.sh
+#RUN echo "b387ef98b84414563113bab9ae24954b5102ca50ed0c1161b51fc0f3300cf7d0 /tmp/install_compiler.sh" | sha256sum --check
 RUN /tmp/install_compiler.sh
 
 ADD install_rust.sh /tmp/install_rust.sh
